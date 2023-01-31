@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# script that accepts one argument and pass it to a regular expression matching method
-# must match school
+# This script accepts one argument and pass it to a regular expression matching method
+# The regular expression must match School
 
 puts ARGV[0].scan(/School/).join
