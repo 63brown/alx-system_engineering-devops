@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# A script that configures a new Ubuntu machine.
+# Ensure redirection must be a “301 Moved Permanently”
+# Use what you did with 1-install_nginx_web_server
+
+sudo apt-get -y update
+sudo apt-get -y install nginx
+echo "Hello World!" | sudo tee /var/www/html/index.nginx-debian.html
+sudo sed -i "/server_name _;/ a\\\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;" /etc/nginx/sites-available/default
+sudo service nginx restart
