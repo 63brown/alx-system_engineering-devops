@@ -1,54 +1,97 @@
 #!/usr/bin/env bash
 # A script that configures a new Ubuntu machine.
 
-apt-get update
-apt-get -y install --no-install-recommends software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-2.6
-apt-get -y install haproxy
-# the load balancer's configuration
-DOMAIN_NAME='brian-kod.tech'
-INIT_FILE='/etc/default/haproxy'
-CONFIG_FILE='/etc/haproxy/haproxy.cfg'
-HAPROXY_LB_CONFIG=\
-"
-#--$DOMAIN_NAME-params-begin--
-backend $DOMAIN_NAME-backend
-	balance roundrobin
-	server 22113-web-01 3.238.111.241:80 check
-	server 22113-web-02 3.238.120.131:80 check
-frontend $DOMAIN_NAME-frontend
-	bind *:80
-	mode http
-	default_backend $DOMAIN_NAME-backend
-#--$DOMAIN_NAME-params-end--
-"
+sudo apt update
+sudo apt install -y haproxy
 
-[ -f "$INIT_FILE" ] || touch "$INIT_FILE"
-[ -f "$CONFIG_FILE" ] || touch "$CONFIG_FILE"
 
-CONFIG_WORDS=$(grep -Eco "$DOMAIN_NAME-backend" < $CONFIG_FILE)
+sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
+sudo touch /etc/haproxy/haproxy.cfg
 
-if [ "$(grep -Eco '^ENABLED=[01]$' < $INIT_FILE)" -gt 0 ]; then
-	sed -i 's/^ENABLED=0$/ENABLED=1/' "$INIT_FILE"
-else
-	echo 'ENABLED=1' >> $INIT_FILE
-fi
+# Add the following content to the configuration file
+sudo bash -c 'cat <<EOF > /etc/haproxy/haproxy.cfg
+frontend http_front
+    bind *:80
+    mode http
+    default_backend http_back
 
-if [ "$CONFIG_WORDS" -eq 0 ]; then
-	echo -e "$HAPROXY_LB_CONFIG" >> $CONFIG_FILE
-else
-	start_tkn="#--$DOMAIN_NAME-params-begin--"
-	end_tkn="#--$DOMAIN_NAME-params-end--"
-	a=$(grep -onE "$start_tkn" < "$CONFIG_FILE" | cut -d : -f1)
-	b=$(grep -onE "$end_tkn" < "$CONFIG_FILE" | cut -d : -f1)
-	a=$((a - 1))
-	b=$((b + 1))
-	sed -i "$a,$b"d "$CONFIG_FILE"
-	echo -en "$HAPROXY_LB_CONFIG" >> $CONFIG_FILE
-fi
+backend http_back
+    mode http
+    balance roundrobin
+    server 134627-web-01 100.26.177.16:80 check
+	server 134627-web-02 100.26.9.154 check
+EOF'
 
-if [ "$(pgrep -c haproxy)" -le 0 ]; then
-	service haproxy start
-else
-	service haproxy restart
-fi
+# Verify the HAproxy configuration file
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+
+# Create a new init script to manage HAproxy
+sudo touch /etc/init.d/haproxy
+
+# Add the following content to the init script
+sudo bash -c 'cat <<EOF > /etc/init.d/haproxy
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          haproxy
+# Required-Start:    \$remote_fs \$syslog
+# Required-Stop:     \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: HAproxy init script
+# Description:       Start/stop HAproxy
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/sbin/haproxy
+CONFIG=/etc/haproxy/haproxy.cfg
+PIDFILE=/var/run/haproxy.pid
+
+test -x \$DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+start() {
+    \$DAEMON -f \$CONFIG -p \$PIDFILE
+    log_daemon_msg "Starting HAproxy"
+    return 0
+}
+
+stop() {
+    \$DAEMON -f \$CONFIG -p \$PIDFILE -sf \$(cat \$PIDFILE) && rm -f \$PIDFILE
+    log_daemon_msg "Stopping HAproxy"
+    return 0
+}
+
+status() {
+    status_of_proc -p \$PIDFILE \$DAEMON haproxy && exit 0 || exit \$?
+}
+
+case \$1 in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart|force-reload)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: \$0 {start|stop|status|restart|force-reload}"
+        exit 1
+        ;;
+esac
+
+exit 0
+EOF'
+
+# Set executable permission to the init script
+sudo chmod +x /etc/init.d/haproxy
+
+# Start HAproxy service and enable it to start automatically on boot
+sudo systemctl start haproxy
+sudo systemctl enable haproxy
