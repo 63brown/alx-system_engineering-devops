@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # A script that configures a new Ubuntu machine.
 
+#update machine and install haproxy
 sudo apt update
 sudo apt install -y haproxy
 
 #create backup
-sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
-sudo touch /etc/haproxy/haproxy.cfg
+sudo cp /etc/haproxy/haproxy.cfg{,.bak}
 
 # Add the following content to the configuration file
 sudo bash -c 'cat <<EOF > /etc/haproxy/haproxy.cfg
