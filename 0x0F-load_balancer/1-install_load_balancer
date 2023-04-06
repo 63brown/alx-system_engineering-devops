@@ -22,8 +22,8 @@ backend http_back
 EOF'
 
 # Verify the HAproxy configuration file
-sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+sudo haproxy -c -f -V /etc/haproxy/haproxy.cfg
 
 # Start HAproxy service and enable it to start automatically on boot
-sudo systemctl start haproxy
+sudo systemctl restart haproxy
 sudo systemctl enable haproxy
