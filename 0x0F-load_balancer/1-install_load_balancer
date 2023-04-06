@@ -4,7 +4,6 @@
 sudo apt update
 sudo apt install -y haproxy
 
-
 sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
 sudo touch /etc/haproxy/haproxy.cfg
 
@@ -24,73 +23,6 @@ EOF'
 
 # Verify the HAproxy configuration file
 sudo haproxy -c -f /etc/haproxy/haproxy.cfg
-
-# Create a new init script to manage HAproxy
-sudo touch /etc/init.d/haproxy
-
-# Add the following content to the init script
-sudo bash -c 'cat <<EOF > /etc/init.d/haproxy
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          haproxy
-# Required-Start:    \$remote_fs \$syslog
-# Required-Stop:     \$remote_fs \$syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: HAproxy init script
-# Description:       Start/stop HAproxy
-### END INIT INFO
-
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/sbin/haproxy
-CONFIG=/etc/haproxy/haproxy.cfg
-PIDFILE=/var/run/haproxy.pid
-
-test -x \$DAEMON || exit 0
-
-. /lib/lsb/init-functions
-
-start() {
-    \$DAEMON -f \$CONFIG -p \$PIDFILE
-    log_daemon_msg "Starting HAproxy"
-    return 0
-}
-
-stop() {
-    \$DAEMON -f \$CONFIG -p \$PIDFILE -sf \$(cat \$PIDFILE) && rm -f \$PIDFILE
-    log_daemon_msg "Stopping HAproxy"
-    return 0
-}
-
-status() {
-    status_of_proc -p \$PIDFILE \$DAEMON haproxy && exit 0 || exit \$?
-}
-
-case \$1 in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    status)
-        status
-        ;;
-    restart|force-reload)
-        stop
-        start
-        ;;
-    *)
-        echo "Usage: \$0 {start|stop|status|restart|force-reload}"
-        exit 1
-        ;;
-esac
-
-exit 0
-EOF'
-
-# Set executable permission to the init script
-sudo chmod +x /etc/init.d/haproxy
 
 # Start HAproxy service and enable it to start automatically on boot
 sudo systemctl start haproxy
