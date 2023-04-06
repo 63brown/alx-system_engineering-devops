@@ -5,8 +5,6 @@
 sudo apt-get update
 sudo apt-get install nginx
 
-sudo nginx -t
-sudo lsof -i :80
 sudo sed -i 's/# listen 80/listen 80/' /etc/nginx/sites-available/default
 sudo ufw allow 80/tcp
 
