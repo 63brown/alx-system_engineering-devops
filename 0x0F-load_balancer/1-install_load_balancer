@@ -18,7 +18,7 @@ backend http_back
     mode http
     balance roundrobin
     server 134627-web-01 100.26.177.16:80 check
-	server 134627-web-02 100.26.9.154:80 check
+    server 134627-web-02 100.26.9.154:80 check
 EOF'
 
 # Verify the HAproxy configuration file
