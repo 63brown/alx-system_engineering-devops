@@ -4,6 +4,7 @@
 sudo apt update
 sudo apt install -y haproxy
 
+#create backup
 sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
 sudo touch /etc/haproxy/haproxy.cfg
 
