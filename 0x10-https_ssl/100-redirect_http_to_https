@@ -88,15 +88,15 @@ frontend 63brown.tech-frontend
         acl letsencrypt-acl path_beg /.well-known/acme-challenge/
         use_backend letsencrypt-backend if letsencrypt-acl
         default_backend 63brown.tech-backend
-#--brian-kod.tech-params-end--
+#--63brown.tech-params-end--
 backend letsencrypt-backend
         server letsencrypt 127.0.0.1:54321
-frontend brian-kod.tech-frontend
+frontend 63brown.tech-frontend
         mode http
         bind *:80
         bind *:443 ssl crt /etc/haproxy/certs/63brown.tech.pem
         http-request add-header X-Forwarded-Proto https if { ssl_fc }
         acl letsencrypt-acl path_beg /.well-known/acme-challenge/
         use_backend letsencrypt-backend if letsencrypt-acl
-        default_backend brian-kod.tech-backend
-#--brian-kod.tech-params-end--
+        default_backend 63brown.tech-backend
+#--63browm.tech-params-end--
