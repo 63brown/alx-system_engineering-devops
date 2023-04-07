@@ -25,10 +25,10 @@ function audit_subdomain() {
 
 function audit_domain() {
     domain=$1
-    audit_subdomain www $domain A
-    audit_subdomain lb-01 $domain A
-    audit_subdomain web-01 $domain A
-    audit_subdomain web-02 $domain A
+    audit_subdomain $domain www
+    audit_subdomain $domain lb-01
+    audit_subdomain $domain web-01
+    audit_subdomain $domain web-02
 }
 
 if [[ $# -eq 1 ]]; then
