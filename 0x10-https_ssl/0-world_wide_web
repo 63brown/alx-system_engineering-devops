@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# A script that will display information about subdomains, after configuring your domain zone so
+# that the subdomain www points to your load-balancer IP (lb-01), and adding other subdomains.
+
+func ()
+{
+	dig "$2.$1" | awk '/ANSWER SECTION:/{getline; printf "The subdomain %s is a %s record and points to %s\n", subdomain, $4, $5}' subdomain="$2"
+}
+
+if [ -z "$2" ]
+then
+	for subdomain in "www" "lb-01" "web-01" "web-02"
+	do
+		func "$1" "$subdomain"
+    done
+else
+	func "$1" "$2"
+fi
