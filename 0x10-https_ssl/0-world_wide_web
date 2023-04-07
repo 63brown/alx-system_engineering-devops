@@ -2,33 +2,27 @@
 # A script that will display information about subdomains, after configuring your domain zone so
 # that the subdomain www points to your load-balancer IP (lb-01), and adding other subdomains.
 
-function get_record() {
-    local domain=$1
-    local subdomain=$2
-    dig +short $subdomain.$domain | awk '{ print $1 }'
+function check_dns_record {
+    subdomain=$1
+    domain=$2
+    record_type=$3
+    destination=$(dig +short $subdomain.$domain $record_type)
+    if [ -z "$destination" ]; then
+        echo "No $record_type record found for $subdomain.$domain"
+    else
+        echo "The subdomain $subdomain is a $record_type record and points to $destination"
+    fi
 }
 
-function audit_subdomain() {
-    local domain=$1
-    local subdomain=$2
-    local record_type=$(dig +short $subdomain.$domain | awk '{ print $4 }')
-    local destination=$(get_record $domain $subdomain)
+# Check DNS records for subdomains
+domain=$1
+subdomain=$2
 
-    echo "The subdomain $subdomain is a $record_type record and points to $destination"
-}
-
-function audit_domain() {
-    local domain=$1
-    audit_subdomain $domain www
-    audit_subdomain $domain lb-01
-    audit_subdomain $domain web-01
-    audit_subdomain $domain web-02
-}
-
-if [[ $# -eq 1 ]]; then
-    audit_domain $1
-elif [[ $# -eq 2 ]]; then
-    audit_subdomain $1 $2
+if [ -z "$subdomain" ]; then
+    check_dns_record www $domain A
+    check_dns_record lb-01 $domain A
+    check_dns_record web-01 $domain A
+    check_dns_record web-02 $domain A
 else
-    echo "Usage: $0 <domain> [<subdomain>]"
+    check_dns_record $subdomain $domain A
 fi
