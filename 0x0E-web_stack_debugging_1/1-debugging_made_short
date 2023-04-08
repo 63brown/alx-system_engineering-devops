@@ -2,4 +2,3 @@
 # listens on port 80
 sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 service nginx stop
-echo "<html><head><title>Test Page</title></head><body><h1>Success!</h1><p>This is a test page.</p></body></html>" > /var/www/html/index.html
