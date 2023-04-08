@@ -38,7 +38,7 @@ backend 63brown.tech-backend
         http-request redirect scheme https code 301 unless { ssl_fc }
         balance roundrobin
         server 134627-web-01 100.26.177.16:80 check
-    server 134627-web-02 100.26.9.154:80 check
+        server 134627-web-02 100.26.9.154:80 check
 backend letsencrypt-backend
         server letsencrypt 127.0.0.1:54321
 frontend 63brown.tech-frontend

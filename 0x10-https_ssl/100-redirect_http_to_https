@@ -33,8 +33,8 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-#--brian-kod.tech-params-begin--
-backend brian-kod.tech-backend
+#--63brown.tech-params-begin--
+backend 63brown.tech-backend
         http-request redirect scheme https code 301 unless { ssl_fc }
         balance roundrobin
         global
