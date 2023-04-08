@@ -2,39 +2,33 @@
 # A script that will display information about subdomains, after configuring your domain zone so
 # that the subdomain www points to your load-balancer IP (lb-01), and adding other subdomains.
 
-function get_record() {
-    domain=$1
-    subdomain=$2
-	record_type=$3
-    destination=$(dig +short $subdomain.$domain $record_type)
-	if [ -z "$destination" ]; then
-        echo "No $record_type record found for $subdomain.$domain"
+function audit_subdomain {
+  domain=$1
+  subdomain=$2
+  
+  # get the DNS record for the subdomain
+  record=$(dig +short $subdomain.$domain)
+  
+  # check if the record exists
+  if [ -z "$record" ]; then
+    echo "The subdomain $subdomain does not exist."
+  else
+    # determine the record type (A or CNAME)
+    if echo $record | grep -q "CNAME"; then
+      record_type="CNAME"
+      destination=$(echo $record | awk '{print $NF}')
     else
-        echo "The subdomain $subdomain is a $record_type record and points to $destination"
+      record_type="A"
+      destination=$record
     fi
+    
+    echo "The subdomain $subdomain is a $record_type record and points to $destination."
+  fi
 }
 
-function audit_subdomain() {
-    domain=$1
-    subdomain=$2
-    record_type=$(dig +short $subdomain.$domain | awk '{ print $4 }')
-    destination=$(get_record $domain $subdomain)
+domain=$1
+subdomain=${2:-"www lb-01 web-01 web-02"}
 
-    echo "The subdomain $subdomain is a $record_type record and points to $destination"
-}
-
-function audit_domain() {
-    domain=$1
-    audit_subdomain $domain www
-    audit_subdomain $domain lb-01
-    audit_subdomain $domain web-01
-    audit_subdomain $domain web-02
-}
-
-if [[ $# -eq 1 ]]; then
-    audit_domain $1
-elif [[ $# -eq 2 ]]; then
-    audit_subdomain $1 $2
-else
-    echo "Usage: $0 <domain> [<subdomain>]"
-fi 
+for sub in $subdomain; do
+  audit_subdomain $domain $sub
+done
