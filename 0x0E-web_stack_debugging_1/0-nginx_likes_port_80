@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 # A script that listens on port 80 to find out what’s keeping your Ubuntu container’s Nginx installation
 
-# Install Nginx if not installed
-sudo apt-get update
-sudo apt-get install nginx
-
-sudo sed -i 's/# listen 80/listen 80/' /etc/nginx/sites-available/default
-sudo ufw allow 80/tcp
-
-sudo systemctl restart nginx
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo service nginx restart
