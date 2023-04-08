@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 # A script that listens on port 80 to find out what’s keeping your Ubuntu container’s Nginx installation
 
-sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-sudo service nginx restart
+sed -i 's/listen\s*80;/listen 80 default_server;/g' /etc/nginx/sites-available/default
+systemctl reload nginx
