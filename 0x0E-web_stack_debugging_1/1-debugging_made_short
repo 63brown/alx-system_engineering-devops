@@ -1,5 +1,4 @@
 #!/bin/env bash
 # listens on port 80
-sudo sed -i "s/8080/80/g" /etc/nginx/sites-enabled/default
-sudo pkill -HUP nginx
-systemctl restart nginx
+sed -i 's/listen\s*80;/listen 80 default_server;/g' /etc/nginx/sites-available/default
+systemctl reload nginx
