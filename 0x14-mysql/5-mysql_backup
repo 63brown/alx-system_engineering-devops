@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
+#!/bin/bash
+
 # Get the current date in the format of day-month-year
 DATE=$(date +"%d-%m-%Y")
 
-# Set the password for the MySQL user
-MYSQL_PASSWORD=$1
-
 # Create a MySQL dump of all databases
-mysqldump -u root -p$MYSQL_PASSWORD --all-databases > backup.sql
+mysqldump --all-databases > backup.sql
 
-# Create archive with date in file name
-tar -czvf $DATE.tar.gz $backupfile
+# Create a compressed archive of the MySQL dump
+tar -czvf ${DATE}.tar.gz backup.sql
 
-# Print message
-echo "MySQL backup completed: $DATE.tar.gz"
+echo "MySQL backup completed: ${DATE}.tar.gz"
