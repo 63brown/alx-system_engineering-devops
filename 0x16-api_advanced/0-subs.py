@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+"""Module allows you to send HTTP requests using Python"""
 import requests
 
 def number_of_subscribers(subreddit):
