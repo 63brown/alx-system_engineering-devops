@@ -7,7 +7,7 @@ def count_words(subreddit, word_list, after=None, count_dict=None):
     if count_dict is None:
         count_dict = {}
     headers = {'User-Agent': 'Mozilla/5.0'}
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json'
+    url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
     params = {'limit': 100}
     if after:
         params['after'] = after
